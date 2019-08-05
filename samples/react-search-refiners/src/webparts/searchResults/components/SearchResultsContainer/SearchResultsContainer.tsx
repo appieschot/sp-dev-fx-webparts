@@ -17,7 +17,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
 
     public constructor(props) {
         super(props);
-        
+
         // Set the initial state
         this.state = {
             results: {
@@ -67,13 +67,13 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
             } else {
 
                 if (items.RelevantResults.length === 0 ) {
-                    
+
                     if (!this.props.showBlank) {
 
                         renderWpContent =
                             <div>
-                                <FilterPanel availableFilters={this.state.availableFilters} onUpdateFilters={this._onUpdateFilters} refinersConfiguration={ this.props.refiners } /> 
-                                <div className='searchWp__noresult'>{strings.NoResultMessage}</div>                                                  
+                                <FilterPanel availableFilters={this.state.availableFilters} onUpdateFilters={this._onUpdateFilters} refinersConfiguration={ this.props.refiners } />
+                                <div className='searchWp__noresult'>{strings.NoResultMessage}</div>
                             </div>;
                     } else {
                         if (this.props.displayMode === DisplayMode.Edit) {
@@ -97,7 +97,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
                                         showResultsCount: this.props.showResultsCount
                                     }
                                 }
-                            />                        
+                            />
                             {this.props.showPaging ?
                                 <Paging
                                     totalItems={items.TotalRows}
@@ -119,7 +119,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
     }
 
     public async componentDidMount() {
-        
+
         // Don't perform search is there is no keywords
         if (this.props.queryKeywords) {
             try {
@@ -170,7 +170,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
     public async componentWillReceiveProps(nextProps: ISearchContainerProps) {
 
         let query = nextProps.queryKeywords + nextProps.searchDataProvider.queryTemplate + nextProps.selectedProperties.join(',');
-        
+
         // New props are passed to the component when the search query has been changed
         if (JSON.stringify(this.props.refiners) !== JSON.stringify(nextProps.refiners)
             || this.props.maxResultsCount !== nextProps.maxResultsCount
@@ -194,7 +194,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
 
                     // We reset the page number and refinement filters
                     const searchResults = await this.props.searchDataProvider.search(nextProps.queryKeywords, refinerManagedProperties, [], 1);
-                    const localizedFilters = await this._getLocalizedFilters(searchResults.RefinementResults);               
+                    const localizedFilters = await this._getLocalizedFilters(searchResults.RefinementResults);
 
                     this.setState({
                         results: searchResults,
@@ -233,7 +233,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
                         hasError: false,
                     });
                 } else {
-                    // We don't use a state variable for the template since it is passed from props 
+                    // We don't use a state variable for the template since it is passed from props
                     // so we force a re render to apply the new template
                     this.forceUpdate();
                 }
@@ -292,7 +292,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
      * @param rawFilters The raw refinement results to translate coming from SharePoint search results
      */
     private async _getLocalizedFilters(rawFilters: IRefinementResult[]): Promise<IRefinementResult[]> {
-        
+
         let termsToLocalize: { uniqueIdentifier: string, termId: string, localizedTermLabel: string }[] = [];
         let udpatedFilters = [];
 
@@ -321,72 +321,7 @@ export default class SearchResultsContainer extends React.Component<ISearchConta
 
         if (termsToLocalize.length > 0) {
 
-            // Process all terms in a single JSOM call for performance purpose. In general JSOM is pretty slow so we try to limit the number of calls...
-            await this.props.taxonomyDataProvider.initialize();
-            const termValues = await this.props.taxonomyDataProvider.getTermsById(termsToLocalize.map((t)=> { return t.termId; }));
-
-            const termsEnumerator = termValues.getEnumerator();
-
-            while (termsEnumerator.moveNext()) {
-
-                const currentTerm = termsEnumerator.get_current();
-
-                // Need to do this check in the case where the term indexed by the search doesn't exist anymore in the term store
-                if (!currentTerm.get_serverObjectIsNull()) {
-
-                    const termId = currentTerm.get_id();
-
-                    // Check if retrieved term is part of terms to localize
-                    const terms = termsToLocalize.filter((e) => { return e.termId === termId.toString(); });
-                    if (terms.length > 0) {
-                        termsToLocalize = termsToLocalize.map((term) => {
-                            if (term.termId === terms[0].termId) {
-                                return {
-                                    uniqueIdentifier: term.uniqueIdentifier,
-                                    termId: termId.toString(),
-                                    localizedTermLabel: termsEnumerator.get_current().get_name(),
-                                };
-                            } else {
-                                return term;
-                            }
-                        });
-                    }
-                }
-            }
-
-            // Update original filters with localized values
-            rawFilters.map((filter) => {
-                let updatedValues = [];
-
-                filter.Values.map((value) => {
-                    const existingFilters = termsToLocalize.filter((e) => { return e.uniqueIdentifier === value.RefinementToken; });
-                    if (existingFilters.length > 0) {
-                        updatedValues.push({
-                            RefinementCount: value.RefinementCount,
-                            RefinementName: existingFilters[0].localizedTermLabel,
-                            RefinementToken: value.RefinementToken,
-                            RefinementValue: existingFilters[0].localizedTermLabel,
-                        } as IRefinementValue);
-                    } else {
-
-                        // Keep only terms (L0). The crawl property ows_taxid_xxx return term sets too.
-                        if (!/(GTSet|GPP|GP0)/i.test(value.RefinementName))  {
-                            updatedValues.push(value);
-                        }
-                    }
-                });
-
-                udpatedFilters.push({
-                    FilterName: filter.FilterName,
-                    Values: updatedValues.sort((a: IRefinementValue, b: IRefinementValue) => {
-                        if (a.RefinementName) {
-                            return a.RefinementName.localeCompare(b.RefinementName);
-                        } else {
-                            return 0;
-                        }
-                    })
-                } as IRefinementResult);
-            });
+            // should fix refiners
 
         } else {
             // Return filters without any modification

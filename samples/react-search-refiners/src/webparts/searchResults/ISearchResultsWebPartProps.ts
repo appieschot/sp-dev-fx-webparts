@@ -15,7 +15,4 @@ export interface ISearchResultsWebPartProps {
   selectedLayout: ResultsLayoutOption;
   externalTemplateUrl: string;
   inlineTemplateText: string;
-  dynamicDataSourceId: string;
-  dynamicDataSourcePropertyId: string;
-  dynamicDataSourceComponentId: string;
 }

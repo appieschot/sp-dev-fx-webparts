@@ -26,7 +26,7 @@ export default class Paging extends React.Component<IPagingProps, null> {
                     totalItemsCount={ this.props.totalItems }
                     pageRangeDisplayed={5}
                     onChange={this.props.onPageUpdate}
-                />                      
+                />
                 </div>
             </div>
         );
@@ -36,4 +36,3 @@ export default class Paging extends React.Component<IPagingProps, null> {
         this.props.onPageUpdate(pageNumber);
     }
 }
-    

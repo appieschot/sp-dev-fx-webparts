@@ -1,5 +1,4 @@
 import ISearchService from      '../../../../services/SearchService/ISearchService';
-import ITaxonomyService from    '../../../../services/TaxonomyService/ITaxonomyService';
 import { DisplayMode } from     '@microsoft/sp-core-library';
 import TemplateService from     '../../../../services/TemplateService/TemplateService';
 
@@ -9,11 +8,6 @@ interface ISearchResultsContainerProps {
    * The search data provider instance
    */
   searchDataProvider: ISearchService;
-
-  /**
-   * The taxonomy data provider instance
-   */
-  taxonomyDataProvider: ITaxonomyService;
 
   /**
    * The search query keywords
@@ -60,7 +54,7 @@ interface ISearchResultsContainerProps {
    */
   showBlank: boolean;
 
-  /** 
+  /**
    * The current display mode of Web Part
    */
   displayMode: DisplayMode;
@@ -70,7 +64,7 @@ interface ISearchResultsContainerProps {
    */
   templateService: TemplateService;
 
-  /** 
+  /**
    * The template raw content to display
    */
   templateContent: string;

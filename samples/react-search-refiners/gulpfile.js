@@ -15,19 +15,19 @@ build.configureWebpack.mergeConfig({
     generatedConfiguration.resolve.alias = { handlebars: 'handlebars/dist/handlebars.min.js' };
 
     generatedConfiguration.module.rules.push(
-      { 
-        test: /utils\.js$/, 
-        loader: 'unlazy-loader', 
+      {
+        test: /utils\.js$/,
+        loader: 'unlazy-loader',
         include: [
             /node_modules/,
-        ]  
+        ]
       }
     );
 
     generatedConfiguration.node = {
       fs: 'empty'
     }
-    
+
     return generatedConfiguration;
   }
 });
